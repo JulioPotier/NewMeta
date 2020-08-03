@@ -5,7 +5,7 @@
  * Description: Add useful information about plugins, contribution powered!
  * Author Name: Julio Potier
  * Author URI: https://secupress.pro
- * Version: 1.0
+ * Version: 1.1
  * Licence: GPLv3
  * Domain: bawnm
  */
@@ -24,6 +24,7 @@ function bawnm_add_action_links( $links ) {
 }
 
 add_action( 'load-plugins.php', 'bawnm_add_css' );
+add_action( 'load-plugin-install.php', 'bawnm_add_css' );
 add_action( 'load-settings_page_new_meta', 'bawnm_add_css' );
 function bawnm_add_css() {
 	wp_enqueue_style( 'newmeta', BAWNM_ASSETS_URL . 'sprite.css' );
@@ -42,6 +43,25 @@ function bawnm_manage_plugins_columns( $columns ) {
 	return $columns;
 }
 
+add_filter( 'plugin_install_action_links', 'juliotest', 10, 2 );
+function juliotest( $action_links, $plugin ) {
+	$options = get_option( 'bawnm_settings' );
+	$list    = bawnm_get_icons();
+	$data    = get_option( 'bawnm_data' );
+	$values  = array_filter( (array) $options );
+	$slug    = $plugin['slug'];
+	$content = '';
+	foreach ( $values as $key => $value ) {
+		// var_dump($data[ $slug ]);
+		if ( isset( $data[ $slug ] ) && is_array( $data[ $slug ] ) && ! empty( $data[ $slug ] ) ) {
+			$content .= '<span class="bawnm_icon bawnm_color-' . $data[ $slug ][ $key ] . ' bawnm_icon-' . $key . '" title="' . sprintf( _x( '%1$s %2$s %3$s', '1: Does the plugin ; 2: does this or that ; 3 yes/no', 'bawnm' ), __( 'Does the plugin', 'bawnm' ), esc_attr( $list[ $key ] ), bawnm_get_label( $data[ $slug ][ $key ] ) ) . '"></span>';
+		}
+	}
+
+	$action_links['newmeta'] = $content;
+	return $action_links;
+}
+
 add_action( 'manage_plugins_custom_column' , 'bawnm_manage_plugins_custom_column', 10, 3 );
 function bawnm_manage_plugins_custom_column( $column_name, $plugin_file, $plugin_data ) {
 	if ( 'newmeta' !== $column_name ) {
@@ -52,14 +72,13 @@ function bawnm_manage_plugins_custom_column( $column_name, $plugin_file, $plugin
 	$data    = get_option( 'bawnm_data' );
 	$values  = array_filter( (array) $options );
 	$url     = admin_url( 'options-general.php?page=new_meta&plugin=' . $plugin_file );
+	$slug    = bawnm_get_slug( $plugin_file );
 	foreach ( $values as $key => $value ) {
-		if ( isset( $data[ $plugin_file ] ) && is_array( $data[ $plugin_file ] ) && ! empty( $data[ $plugin_file ] ) ) {
-			echo '<span class="bawnm_icon bawnm_color-' . $data[ $plugin_file ][ $key ] . ' bawnm_icon-' . $key . '" title="' . sprintf( _x( '%1$s %2$s %3$s', '1: Does the plugin ; 2: does this or that ; 3 yes/no', 'bawnm' ), __( 'Does the plugin', 'bawnm' ), esc_attr( $list[ $key ] ), bawnm_get_label( $data[ $plugin_file ][ $key ] ) ) . '"></span>';
-		// } else {
-		// 	echo '<span class="bawnm_icon bawnm_color-gray bawnm_icon-' . $key . '" title="' . sprintf( _x( '%1$s %2$s %3$s', '1: Does the plugin ; 2: does this or that ; 3 yes/no', 'bawnm' ), __( 'Does the plugin', 'bawnm' ), esc_attr( $list[ $key ] ), bawnm_get_label( '' ) ) . '"></span>';
+		if ( isset( $data[ $slug ] ) && is_array( $data[ $slug ] ) && ! empty( $data[ $slug ] ) ) {
+			echo '<span class="bawnm_icon bawnm_color-' . $data[ $slug ][ $key ] . ' bawnm_icon-' . $key . '" title="' . sprintf( _x( '%1$s %2$s %3$s', '1: Does the plugin ; 2: does this or that ; 3 yes/no', 'bawnm' ), __( 'Does the plugin', 'bawnm' ), esc_attr( $list[ $key ] ), bawnm_get_label( $data[ $slug ][ $key ] ) ) . '"></span>';
 		}
 	}
-	$class = isset( $data[ $plugin_file ] ) && is_array( $data[ $plugin_file ] ) && ! empty( $data[ $plugin_file ] ) ? 'bawnm_hidden' : '';
+	$class = isset( $data[ $slug ] ) && is_array( $data[ $slug ] ) && ! empty( $data[ $slug ] ) ? 'bawnm_hidden' : '';
 	echo '<a href="' . esc_url( $url ) . '"><span class="bawnm_icon ' . $class . ' bawnm_icon-cog" title="' . esc_attr__( 'Contribute', 'bawnm' ) . '"></span></a>';
 }
 
@@ -163,8 +182,9 @@ function bawnm_radios_render( $plugin ) {
 		<p><label><span class="bawnm_icon bawnm_color-1 bawnm_icon-<?php echo $key; ?>"></span> <input id="r-candlestick-<?php echo $key; ?>" class="candlestick" type="checkbox" name="bawnm_settings[<?php echo $key; ?>]" value="<?php echo esc_attr( $value ); ?>">…<?php echo $label; ?></label></p>
 		<?php
 	}
+	$slug = bawnm_get_slug( $plugin['slug'] );
 	?>
-	<input type="hidden" name="bawnm_settings[plugin_slug]" value="<?php echo esc_attr( $plugin['slug'] ); ?>">
+	<input type="hidden" name="bawnm_settings[plugin_slug]" value="<?php echo esc_attr( $slug ); ?>">
 	<input type="hidden" name="bawnm_settings[plugin_ver]" value="<?php echo esc_attr( $plugin['Version'] ); ?>">
 	<?php
 }
@@ -234,16 +254,8 @@ function _bawnm_refresh_data() {
 		] );
 	$data = @json_decode( wp_remote_retrieve_body( $r ), true );
 	if ( isset( $data['success'], $data['data'] ) ) {
-		$data = $data['data'];
-		foreach( $data as $plugin_slug => $version ) {
-			$_plugin_slug = str_replace( '_php', '.php', $plugin_slug );
-			if ( isset( $wp_plugins[ $_plugin_slug ] ) ) {
-				$data[ $_plugin_slug ] = $data[ $plugin_slug ];
-			}
-			unset( $data[ $plugin_slug ] );
-		}
+		update_option( 'bawnm_data', $data['data'], false );
 	}
-	update_option( 'bawnm_data', $data, false );
 }
 
 register_deactivation_hook( __FILE__, 'bawnm_deactivation' );

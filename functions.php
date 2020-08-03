@@ -37,3 +37,8 @@ function bawnm_get_label( $index ) {
 	}
 	return __( 'I don’t know', 'bawnm' );
 }
+
+function bawnm_get_slug( $plugin_file ) {
+	$slug = explode( '/', $plugin_file );
+	return $slug[0];
+}
