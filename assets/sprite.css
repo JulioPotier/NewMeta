@@ -1,0 +1,117 @@
+.bawnm_icon {
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-image: url(sprite.png);
+  zoom: 50%;
+  margin: 0 3px;
+}
+.bawnm_icon-file {
+  width: 32px;
+  height: 32px;
+  background-position: 0 0;
+}
+.bawnm_icon-freemium {
+  width: 32px;
+  height: 32px;
+  background-position: -48px 0;
+}
+.bawnm_icon-support {
+  width: 32px;
+  height: 32px;
+  background-position: -96px 0;
+}
+.bawnm_icon-database {
+  width: 32px;
+  height: 32px;
+  background-position: -144px 0;
+}
+.bawnm_icon-ad {
+  width: 32px;
+  height: 32px;
+  background-position: -192px 0;
+}
+.bawnm_icon-licence {
+  width: 32px;
+  height: 32px;
+  background-position: -240px 0;
+}
+.bawnm_icon-doc {
+  width: 32px;
+  height: 32px;
+  background-position: -288px 0;
+}
+.bawnm_icon-addons {
+  width: 32px;
+  height: 32px;
+  background-position: -336px 0;
+}
+.bawnm_icon-api {
+  width: 32px;
+  height: 32px;
+  background-position: -384px 0;
+}
+.bawnm_icon-i18n {
+  width: 32px;
+  height: 32px;
+  background-position: -432px 0;
+}
+.bawnm_icon-donation {
+  width: 32px;
+  height: 32px;
+  background-position: -480px 0;
+}
+.bawnm_icon-services {
+  width: 32px;
+  height: 32px;
+  background-position: -528px 0;
+}
+.bawnm_icon-unknown {
+  width: 32px;
+  height: 32px;
+  background-position: -576px 0;
+}
+.bawnm_icon-notices {
+  width: 32px;
+  height: 32px;
+  background-position: -624px 0;
+}
+.bawnm_icon-dev {
+  width: 32px;
+  height: 32px;
+  background-position: -672px 0;
+}
+.bawnm_icon-email {
+  width: 32px;
+  height: 32px;
+  background-position: -720px 0;
+}
+.bawnm_icon-github {
+  width: 32px;
+  height: 32px;
+  background-position: -766px 0px;
+}
+.bawnm_icon-wpstyle {
+  width: 32px;
+  height: 32px;
+  background-position: -814px 0px;
+}
+.bawnm_icon-cog {
+  width: 32px;
+  height: 32px;
+  background-position: -860px -40px;
+}
+
+.bawnm_color-1{
+  background-position-y: -40px;
+}
+.bawnm_color-0{
+  background-position-y: -80px;
+}
+
+.bawnm_hidden{
+  visibility: hidden;
+}
+.newmeta:hover .bawnm_hidden{
+  visibility: visible;
+  cursor: pointer;
+}
